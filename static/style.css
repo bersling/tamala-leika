@@ -62,12 +62,23 @@ a { color: inherit; }
 
 /* --- header & footer ----------------------------------------------------------------------- */
 .site-header { position: relative; }
-.header-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: 1.1rem; padding-bottom: .9rem; }
+.header-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: 1.15rem; padding-bottom: 1rem; }
 .header-rule { opacity: .55; }
-.logo { display: inline-flex; align-items: center; gap: .55rem; font-family: var(--display); font-size: 1.7rem; text-decoration: none; line-height: 1; white-space: nowrap; }
-.logo-icon { width: 2.15rem; height: 2.15rem; border-radius: 50%; border: 2px solid var(--ink); flex: none; }
-.logo.small { font-size: 1.35rem; margin: 0 0 .5rem; }
-.logo.small .logo-icon { width: 1.65rem; height: 1.65rem; }
+.logo { display: inline-flex; align-items: center; gap: .85rem; font-family: var(--display); font-size: 2.2rem; text-decoration: none; line-height: 1; white-space: nowrap; }
+.logo-badge { width: 4.4rem; height: 4.4rem; flex: none; overflow: visible; transform: rotate(-5deg); transition: transform .22s cubic-bezier(.2, .9, .3, 1.35); }
+.logo:hover .logo-badge { transform: rotate(5deg) scale(1.08); }
+.logo-badge .badge-shadow-bg { fill: var(--paper); }
+.logo-badge .badge-hatch { fill: none; stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round; }
+.logo-badge .badge-shadow-ring { fill: none; stroke: var(--ink); stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+.logo-badge .badge-bg { fill: var(--orange); }
+.logo-badge .face-bun, .logo-badge .face-hair, .logo-badge .face-eye { fill: var(--ink); }
+.logo-badge .face-skin { fill: var(--paper); }
+.logo-badge .face-line { fill: none; stroke: var(--ink); stroke-width: 7.5; stroke-linecap: round; stroke-linejoin: round; }
+.logo-badge .face-smile { fill: none; stroke: var(--ink); stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+.logo-badge .badge-ring { fill: none; stroke: var(--ink); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.logo-badge .badge-ring-2 { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: .8; }
+.logo.small { font-size: 1.5rem; margin: 0 0 .5rem; gap: .6rem; }
+.logo.small .logo-badge { width: 2.7rem; height: 2.7rem; }
 .site-header nav { display: flex; gap: clamp(.8rem, 2.5vw, 1.8rem); font-family: var(--hand); font-size: 1.05rem; }
 .site-header nav a, .footer-nav a { text-decoration: none; background: linear-gradient(var(--orange), var(--orange)) no-repeat 0 92% / 0 3px; transition: background-size .25s ease; padding-bottom: 2px; }
 .site-header nav a:hover, .site-header nav a[aria-current], .footer-nav a:hover { background-size: 100% 3px; }
