@@ -311,29 +311,34 @@ def avatar_svg(seed: int = 17) -> str:
 
 
 def hero_svg() -> str:
-    """The home page drawing: a bubble, its crash and the question the channel answers."""
+    """The home page drawing: a stock price bubble shooting far above what the business is worth, then crashing back down to it."""
     ax = wobble([(70, 40), (70, 400), (640, 400)], 3, amp=1.2)
     ticks = "".join(f'<path class="ink thin" d="{wobble([(x, 400), (x, 412)], 10 + i, amp=0.4, step=4)}"/>'
                     for i, x in enumerate(range(150, 640, 90)))
     ticks += "".join(f'<path class="ink thin" d="{wobble([(58, y), (70, y)], 20 + i, amp=0.4, step=4)}"/>'
                      for i, y in enumerate(range(100, 400, 75)))
     random.seed(7)
-    wild, y = [], 330.0
-    shape = [(i, 330 - 230 * math.exp(-((i - 330) / 120) ** 2) - 40 * i / 600) for i in range(80, 420, 12)]
-    for x, base in shape:
-        wild.append((x, base + random.uniform(-9, 9)))
-    for x in range(420, 630, 12):
-        y = 330 - 60 * math.exp(-((x - 330) / 120) ** 2) + 40 - 30 * (x - 420) / 210 + random.uniform(-6, 6)
-        wild.append((x, y))
-    calm = [(x, 300 - 0.22 * (x - 80) + 5 * math.sin(x / 37)) for x in range(80, 631, 30)]
+    # Blue dashed line: what it's actually worth (grows slowly and steadily)
+    calm_fn = lambda x: 340 - 0.14 * (x - 80)
+    calm = [(x, calm_fn(x) + 3 * math.sin(x / 40)) for x in range(80, 631, 30)]
+    # Orange line: price tracks value at first, inflated into a huge bubble, then crashes back down to what it's worth
+    wild = []
+    for x in range(80, 432, 12):
+        bubble = 225 * math.exp(-((x - 335) / 95) ** 2) if x > 140 else 0
+        wild.append((x, calm_fn(x) - bubble + random.uniform(-7, 7)))
+    for x in range(432, 630, 12):
+        # Crash rapidly after x=432 back down to the blue value line
+        after = max(0.0, 1.0 - (x - 432) / 36.0)
+        bubble = 115 * after
+        wild.append((x, calm_fn(x) - bubble + random.uniform(-5, 5)))
     peak = min(wild, key=lambda p: p[1])
     ell_c = (peak[0] + 4, peak[1] + 6)
     ell = wobble([(ell_c[0] + 62 * math.cos(a / 20 * 6.4 - 0.3), ell_c[1] + 34 * math.sin(a / 20 * 6.4 - 0.3))
                   for a in range(21)], 5, amp=2.0, step=8)
-    arrow = wobble([(470, 120), (430, 102), (ell_c[0] + 66, ell_c[1] - 10)], 6, amp=1.4)
-    head_x, head_y = ell_c[0] + 66, ell_c[1] - 10
+    arrow = wobble([(475, 118), (435, 100), (ell_c[0] + 66, ell_c[1] - 6)], 6, amp=1.4)
+    head_x, head_y = ell_c[0] + 66, ell_c[1] - 6
     head = wobble([(head_x + 14, head_y - 8), (head_x, head_y), (head_x + 15, head_y + 7)], 8, amp=0.6, step=4)
-    return f'''<svg class="hero-chart" viewBox="0 0 680 470" role="img" aria-label="Chart of a price shooting up and crashing, with the peak circled and the question: wait, why did it crash?">
+    return f'''<svg class="hero-chart" viewBox="0 0 680 470" role="img" aria-label="Chart of a stock price shooting far above what it is worth and then crashing back down">
   <path class="ink axis" pathLength="1" d="{ax}"/>
   {ticks}
   <text class="hand axis-label" x="16" y="60">price</text>
@@ -343,9 +348,9 @@ def hero_svg() -> str:
   <path class="mark circle" pathLength="1" d="{ell}"/>
   <path class="mark arrow" pathLength="1" d="{arrow}"/>
   <path class="mark arrow head" pathLength="1" d="{head}"/>
-  <text class="hand note" x="472" y="112">wait, why did</text>
-  <text class="hand note" x="472" y="142">it crash?</text>
-  <text class="hand note small blue-text" x="520" y="232">what it's worth</text>
+  <text class="hand note" x="480" y="110">everyone</text>
+  <text class="hand note" x="480" y="140">buys here</text>
+  <text class="hand note small blue-text" x="475" y="315">what it's actually worth</text>
 </svg>'''
 
 
@@ -475,7 +480,7 @@ def home(videos, now, show_all) -> str:
     <p class="kicker hand">short finance explainers</p>
     <h1 class="display">{NAME}</h1>
     <p class="hero-sub">{TAGLINE}</p>
-    <p class="hero-lead">Short videos on how financial markets work — from basic concepts like options, bonds and leverage to the stories behind big crashes, bubbles and bets. Every video comes with a written version right below it if you'd rather read than watch.</p>
+    <p class="hero-lead">Short videos about how financial markets work, from basic concepts like options, bonds and leverage to the stories behind big crashes, bubbles and bad bets.</p>
     <div class="actions">{cta}<a class="btn" href="{B}/videos/">All videos</a></div>
   </div>
   <div class="hero-art">{hero_svg()}</div>
@@ -487,7 +492,7 @@ def home(videos, now, show_all) -> str:
 <section class="wrap section about-strip">
   <div class="about-box">
     <h2 class="sketch">Who makes this?</h2>
-    <p>I'm not a finance guy — these are just the things I learned along the way, turned into short videos with the help of AI. The machine writes, speaks and draws them, and I spar with it and edit the drafts until they clear my bar.</p>
+    <p>I'm not a finance guy. These are just the things I learned along the way, turned into short videos with AI. The machine writes, speaks and draws them, and I spar with it and edit the drafts until they clear my bar.</p>
     <a class="btn" href="{B}/about/">About the channel</a>
   </div>
 </section>'''
@@ -547,26 +552,21 @@ def video_page(v, videos, now) -> str:
 def index_page(videos, now, show_all) -> str:
     vis = [v for v in videos if show_all or released(v, now)]
     groups = [
-        ("Concepts: the basics", "The building blocks, explained from scratch.",
-         [v for v in vis if v["kind"] != "story" and v["level"] in ("basic", "")]),
-        ("Concepts: one step further", "Going a bit deeper once the basics are clear.",
-         [v for v in vis if v["kind"] != "story" and v["level"] in ("advanced", "pro")]),
-        ("Stories", "Big bets, bubbles, frauds and collapses.",
-         [v for v in vis if v["kind"] == "story"]),
+        ("Basics", [v for v in vis if v["kind"] != "story" and v["level"] in ("basic", "")]),
+        ("Advanced", [v for v in vis if v["kind"] != "story" and v["level"] in ("advanced", "pro")]),
+        ("Stories", [v for v in vis if v["kind"] == "story"]),
     ]
     sections = ""
-    for i, (h, sub, vs) in enumerate(groups):
+    for h, vs in groups:
         if not vs:
             continue
         sections += f'''<section class="section">
-  <div class="section-head"><h2 class="sketch">{h}</h2><p class="hand note-inline">{sub}</p></div>
+  <div class="section-head"><h2 class="sketch">{h}</h2></div>
   {grid(list(reversed(vs)), now, show_all)}
 </section>'''
-    n = len([v for v in videos if released(v, now)])
     body = f'''<div class="wrap">
   <header class="page-head">
     <h1 class="display page-title">All videos</h1>
-    <p class="lede">{n} short{"s" if n != 1 else ""} so far, each with a written version to read.</p>
   </header>
   {sections}
 </div>'''
