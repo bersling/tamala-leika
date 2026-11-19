@@ -119,6 +119,8 @@ def export() -> list[dict]:
     root = repo_root()
     videos = []
     for row in parse_backlog(root / "videos" / "BACKLOG.md"):
+        if row["id"].startswith("meme-"):
+            continue  # memes are jokes, not articles: they stay off the website (Daniel, 2026-11-19)
         vdir = root / "videos" / row["id"]
         yt = youtube_yaml(vdir / "youtube.yaml")
         article = vdir / "article.md"
