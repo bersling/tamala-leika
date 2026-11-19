@@ -311,52 +311,74 @@ def avatar_svg(seed: int = 17) -> str:
 
 
 def hero_svg() -> str:
-    """The home page drawing: a stock price bubble shooting far above what the business is worth, then crashing back down to it."""
-    ax = wobble([(70, 40), (70, 400), (640, 400)], 3, amp=1.2)
+    """Home page chart: the same stock with no leverage (blue) vs 5x leverage (orange).
+    A +18% rise takes 5x leverage from $10k to $19k, then a 20% dip in the stock wipes 5x leverage
+    out to $0 while the unleveraged stock barely dips and goes on to new highs.
+    """
+    ax = wobble([(75, 40), (75, 400), (640, 400)], 3, amp=1.2)
     ticks = "".join(f'<path class="ink thin" d="{wobble([(x, 400), (x, 412)], 10 + i, amp=0.4, step=4)}"/>'
-                    for i, x in enumerate(range(150, 640, 90)))
-    ticks += "".join(f'<path class="ink thin" d="{wobble([(58, y), (70, y)], 20 + i, amp=0.4, step=4)}"/>'
-                     for i, y in enumerate(range(100, 400, 75)))
-    random.seed(7)
-    # Blue dashed line: what it's actually worth (grows slowly and steadily)
-    calm_fn = lambda x: 340 - 0.14 * (x - 80)
-    calm = [(x, calm_fn(x) + 3 * math.sin(x / 40)) for x in range(80, 631, 30)]
-    # Orange line: price tracks value at first, inflated into a huge bubble, then crashes back down to what it's worth
-    wild = []
-    for x in range(80, 432, 12):
-        bubble = 225 * math.exp(-((x - 335) / 95) ** 2) if x > 140 else 0
-        wild.append((x, calm_fn(x) - bubble + random.uniform(-7, 7)))
-    for x in range(432, 630, 12):
-        # Crash rapidly after x=432 back down to the blue value line
-        after = max(0.0, 1.0 - (x - 432) / 36.0)
-        bubble = 115 * after
-        wild.append((x, calm_fn(x) - bubble + random.uniform(-5, 5)))
-    peak = min(wild, key=lambda p: p[1])
-    ell_c = (peak[0] + 4, peak[1] + 6)
-    ell = wobble([(ell_c[0] + 62 * math.cos(a / 20 * 6.4 - 0.3), ell_c[1] + 34 * math.sin(a / 20 * 6.4 - 0.3))
-                  for a in range(21)], 5, amp=2.0, step=8)
-    arrow = wobble([(475, 118), (435, 100), (ell_c[0] + 66, ell_c[1] - 6)], 6, amp=1.4)
-    head_x, head_y = ell_c[0] + 66, ell_c[1] - 6
-    head = wobble([(head_x + 14, head_y - 8), (head_x, head_y), (head_x + 15, head_y + 7)], 8, amp=0.6, step=4)
-    return f'''<svg class="hero-chart" viewBox="0 0 680 470" role="img" aria-label="Chart of a stock price shooting far above what it is worth and then crashing back down">
+                    for i, x in enumerate(range(170, 640, 110)))
+    # Y-axis ticks at $20k (y=80), $10k (y=240), $0 (y=400)
+    ticks += "".join(f'<path class="ink thin" d="{wobble([(63, y), (75, y)], 20 + i, amp=0.4, step=4)}"/>'
+                     for i, y in enumerate([80, 240, 400]))
+    # Underlying stock index (starts at 1.0 at x=80, rises to 1.18 at x=330, dips 20% to 0.944 at x=420, climbs to 1.38 at x=625)
+    keyframes = [(80, 1.00), (140, 1.03), (200, 1.08), (260, 1.14), (330, 1.18),
+                 (365, 1.11), (395, 1.01), (420, 0.944), (470, 1.05), (530, 1.19), (585, 1.29), (625, 1.38)]
+
+    def interp(x: float) -> float:
+        for (x0, v0), (x1, v1) in zip(keyframes, keyframes[1:]):
+            if x <= x1:
+                t = (x - x0) / (x1 - x0) if x1 > x0 else 0.0
+                return v0 + t * (v1 - v0)
+        return keyframes[-1][1]
+
+    # Map dollar value ($0..$20k) to y (400..80): y = 400 - (dollars / 10k) * 160
+    y_for = lambda mult: 400.0 - mult * 160.0
+    rnd = random.Random(14)
+    stock_pts = []
+    lev_pts = []
+    for x in range(80, 626, 11):
+        s = interp(x) + (0.0 if x in (80, 330, 420) else rnd.uniform(-0.012, 0.012))
+        stock_pts.append((x, y_for(s)))
+        # 5x leverage reset from peak 1.18 (or borrowing $40k on $10k at start, wiped out when 20% drop from peak hits equity)
+        if x <= 330:
+            # Rises 5x as fast as the stock: from 1.0 ($10k) to 1.90 ($19k)
+            lev_mult = 1.0 + 5.0 * (s - 1.0)
+        elif x < 420:
+            # A 20% drop in the stock from the 1.18 peak wipes out 5x leverage completely to $0
+            drop_frac = (1.18 - s) / (1.18 - 0.944)
+            lev_mult = max(0.0, 1.90 * (1.0 - drop_frac))
+        else:
+            lev_mult = 0.0
+        lev_pts.append((x, y_for(lev_mult) - (2.0 if lev_mult == 0.0 else 0.0)))
+
+    # Circle around the wipeout point at (420, 398)
+    ell_c = (424, 396)
+    ell = wobble([(ell_c[0] + 28 * math.cos(a / 20 * 6.4 - 0.3), ell_c[1] + 22 * math.sin(a / 20 * 6.4 - 0.3))
+                  for a in range(21)], 5, amp=1.4, step=6)
+    arrow = wobble([(475, 340), (455, 360), (446, 380)], 6, amp=1.1)
+    head = wobble([(445, 368), (446, 380), (458, 376)], 8, amp=0.5, step=4)
+    return f'''<svg class="hero-chart" viewBox="0 0 680 470" role="img" aria-label="Chart comparing a stock without leverage and with 5x leverage: a 20% dip wipes out the 5x leveraged position to $0 before the stock recovers to new highs">
   <path class="ink axis" pathLength="1" d="{ax}"/>
   {ticks}
-  <text class="hand axis-label" x="16" y="60">price</text>
-  <text class="hand axis-label" x="590" y="446">time</text>
-  <path class="data blue dashed" d="{wobble(calm, 11, amp=1.0)}"/>
-  <path class="data orange" pathLength="1" d="{wobble(wild, 12, amp=1.2, step=6)}"/>
+  <text class="hand axis-label" x="6" y="87">$20k</text>
+  <text class="hand axis-label" x="6" y="247">$10k</text>
+  <text class="hand axis-label" x="25" y="405">$0</text>
+  <path class="data blue dashed" d="{wobble(stock_pts, 11, amp=0.9, step=8)}"/>
+  <path class="data orange" pathLength="1" d="{wobble(lev_pts, 12, amp=1.1, step=7)}"/>
   <path class="mark circle" pathLength="1" d="{ell}"/>
   <path class="mark arrow" pathLength="1" d="{arrow}"/>
   <path class="mark arrow head" pathLength="1" d="{head}"/>
-  <text class="hand note" x="480" y="110">everyone</text>
-  <text class="hand note" x="480" y="140">buys here</text>
-  <text class="hand note small blue-text" x="475" y="315">what it's actually worth</text>
+  <text class="hand note orange-text" x="215" y="74">5x leverage</text>
+  <text class="hand note small blue-text" x="475" y="138">same stock,</text>
+  <text class="hand note small blue-text" x="475" y="163">no leverage</text>
+  <text class="hand note small" x="465" y="330">20% dip wipes you out</text>
 </svg>'''
 
 
 # ---------------------------------------------------------------- page parts
 
-CSS_VERSION = "3"
+CSS_VERSION = "4"
 
 
 def esc(s: str) -> str:

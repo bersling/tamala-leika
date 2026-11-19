@@ -124,6 +124,7 @@ a { color: inherit; }
 .hero-chart .note { font-size: 26px; }
 .hero-chart .small { font-size: 20px; }
 .hero-chart .blue-text { fill: var(--blue); }
+.hero-chart .orange-text { fill: #c25e0f; }
 @media (prefers-reduced-motion: no-preference) {
   .hero-chart [pathLength] { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.2s ease forwards; }
   .hero-chart .axis { animation-duration: .9s; }
