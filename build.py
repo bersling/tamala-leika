@@ -298,7 +298,7 @@ def hero_svg() -> str:
 
 # ---------------------------------------------------------------- page parts
 
-CSS_VERSION = "1"
+CSS_VERSION = "2"
 
 
 def esc(s: str) -> str:
@@ -343,7 +343,7 @@ def header(path: str) -> str:
         return f'<a href="{B}{href}"{cur}>{label}</a>'
     return f'''<header class="site-header">
   <div class="wrap header-row">
-    <a class="logo" href="{B}/">{NAME}</a>
+    <a class="logo" href="{B}/"><img class="logo-icon" src="{B}/static/apple-touch-icon.png" alt="" width="36" height="36"><span>{NAME}</span></a>
     <nav>{nav("/videos/", "All videos")}{nav("/about/", "About")}<a class="ext" href="{YOUTUBE}" rel="noopener">YouTube</a></nav>
   </div>
   {rule(2, "rule header-rule")}
@@ -355,8 +355,8 @@ def footer() -> str:
   {rule(9, "rule panel-rule")}
   <div class="wrap footer-row">
     <div>
-      <p class="logo small">{NAME}</p>
-      <p class="fine">Short finance explainers, made with AI. For education only — none of this is financial advice.</p>
+      <p class="logo small"><img class="logo-icon" src="{B}/static/apple-touch-icon.png" alt="" width="28" height="28"><span>{NAME}</span></p>
+      <p class="fine">Short finance explainers, made with AI and curated by a human. Not financial advice.</p>
     </div>
     <nav class="footer-nav">
       <a href="{B}/videos/">All videos</a><a href="{B}/about/">About</a>
@@ -414,7 +414,6 @@ def released(v: dict, now: datetime) -> bool:
 
 def home(videos, now, show_all) -> str:
     out = [v for v in videos if released(v, now)]
-    coming = [v for v in videos if not released(v, now)]
     latest = list(reversed(out))[:6]
     first = latest[0] if latest else None
     cta = (f'<a class="btn primary" href="{B}/{first["slug"]}/">Watch the latest</a>' if first else "")
@@ -431,24 +430,11 @@ def home(videos, now, show_all) -> str:
 <section class="wrap section">
   <div class="section-head"><h2 class="sketch">Latest</h2><a class="more hand" href="{B}/videos/">see all &rarr;</a></div>
   {grid(latest, now, False)}
-</section>'''
-    if coming:
-        nxt = coming[:4] if not show_all else coming
-        items = "".join(f'<li><span class="when hand">{fmt_date(v["release"], True)}</span>'
-                        f'<span class="what">{esc(v["title"])}</span>{tag(v)}</li>' for v in nxt)
-        body += f'''
-<section class="panel section coming-up">
-  {rule(5, "rule panel-rule")}
-  <div class="wrap">
-    <div class="section-head"><h2 class="sketch">Coming up</h2><p class="hand note-inline">new shorts at 05:00 and 17:00, Zurich time</p></div>
-    <ul class="schedule">{items}</ul>
-  </div>
-</section>'''
-    body += f'''
+</section>
 <section class="wrap section about-strip">
   <div class="about-box">
     <h2 class="sketch">Who makes this?</h2>
-    <p>I'm not a finance guy — these are just the things I learned along the way, turned into short videos with the help of AI. The machine writes, speaks and draws them, and I keep throwing drafts back until they actually make sense.</p>
+    <p>I'm not a finance guy — these are just the things I learned along the way, turned into short videos with the help of AI. The machine writes, speaks and draws them, and I spar with it and edit the drafts until they clear my bar.</p>
     <a class="btn" href="{B}/about/">About the channel</a>
   </div>
 </section>'''
@@ -522,14 +508,6 @@ def index_page(videos, now, show_all) -> str:
         sections += f'''<section class="section">
   <div class="section-head"><h2 class="sketch">{h}</h2><p class="hand note-inline">{sub}</p></div>
   {grid(list(reversed(vs)), now, show_all)}
-</section>'''
-    coming = [v for v in videos if not released(v, now)]
-    if coming and not show_all:
-        items = "".join(f'<li><span class="when hand">{fmt_date(v["release"], True)}</span>'
-                        f'<span class="what">{esc(v["title"])}</span>{tag(v)}</li>' for v in coming)
-        sections += f'''<section class="section">
-  <div class="section-head"><h2 class="sketch">Coming up</h2></div>
-  <ul class="schedule">{items}</ul>
 </section>'''
     n = len([v for v in videos if released(v, now)])
     body = f'''<div class="wrap">
@@ -666,14 +644,14 @@ def make_poster(vid: str, seconds: float) -> None:
     print(f"wrote {dst.relative_to(SITE.parent)} ({dst.stat().st_size // 1024} KB)")
 
 
-def serve(port: int = 8738) -> None:
+def serve(port: int = 8738, show_all: bool = False) -> None:
     import functools
     import http.server
     export()
     global B
     B = ""
     out = SITE / "_site"
-    build(out, show_all=True)
+    build(out, show_all=show_all)
     handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(out))
     print(f"http://localhost:{port}/")
     http.server.ThreadingHTTPServer(("127.0.0.1", port), handler).serve_forever()
@@ -693,7 +671,7 @@ if __name__ == "__main__":
             B = args[args.index("--base") + 1]
         build(out, show_all="--all" in args, now=now)
     elif cmd == "serve":
-        serve()
+        serve(show_all="--all" in args)
     elif cmd == "poster":
         make_poster(args[1], float(args[2]))
     elif cmd == "deploy":

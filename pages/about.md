@@ -6,7 +6,7 @@ Hi, I'm Daniel.
 
 Let's get the obvious part out of the way first: yes, these videos are made with AI. Typically I don't like AI-generated videos either, because left to itself, AI just churns out generic slop that nobody wants to watch.
 
-Still, when I searched YouTube for a simple explanation of implied volatility, most of what I found was so bad that I figured an AI short — properly guided and edited — could actually do a better job. So I built a pipeline where AI drafts the script, speaks the narration and generates the whiteboard drawings in code, while I pick the topics, check that the story and the numbers make sense, and throw drafts back until they clear my bar.
+Still, when I searched YouTube for a simple explanation of implied volatility, most of what I found was so bad that I figured an AI short — properly guided and edited — could actually do a better job. So I built a pipeline where AI drafts the script, speaks the narration and generates the whiteboard drawings in code, while I pick the topics, spar with the machine, and keep editing or rejecting drafts until the result clears my bar.
 
 I'm not a finance professional. These are just the concepts and market stories I've found fascinating and learned about along the way, explained as simply and clearly as I can get the machine to explain them. None of this is financial advice.
 
