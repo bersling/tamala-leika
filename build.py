@@ -258,54 +258,32 @@ def frame(seed: int) -> str:
 
 
 def avatar_svg(seed: int = 17) -> str:
-    """The channel face drawn as an inline wobbly SVG badge with a hatched doodle shadow."""
-    # Outer badge ring (centred at 102, 98, radius ~80)
-    cx, cy, rx, ry = 102, 98, 80, 78
-    ring_pts = [(cx + rx * math.cos(a / 32 * 6.32 - 0.5), cy + ry * math.sin(a / 32 * 6.32 - 0.5)) for a in range(33)]
-    ring2_pts = [(cx + (rx + 1.5) * math.cos(a / 26 * 6.28 + 0.8), cy + (ry + 1.5) * math.sin(a / 26 * 6.28 + 0.8)) for a in range(27)]
-    # Offset shadow rim on bottom-left (shifted by -9, +9) with diagonal hatch lines matching Rubik Doodle Shadow
+    """The untouched YouTube avatar image, framed in a wobbly ink ring with a hatched doodle shadow."""
+    cx, cy, r = 104, 98, 78
+    ring_pts = [(cx + r * math.cos(a / 32 * 6.32 - 0.5), cy + r * math.sin(a / 32 * 6.32 - 0.5)) for a in range(33)]
+    ring2_pts = [(cx + (r + 1.2) * math.cos(a / 26 * 6.28 + 0.8), cy + (r + 1.2) * math.sin(a / 26 * 6.28 + 0.8)) for a in range(27)]
     sx, sy = cx - 9, cy + 9
-    shadow_pts = [(sx + rx * math.cos(a / 32 * 6.28), sy + ry * math.sin(a / 32 * 6.28)) for a in range(33)]
+    shadow_pts = [(sx + r * math.cos(a / 32 * 6.28), sy + r * math.sin(a / 32 * 6.28)) for a in range(33)]
     hatches = []
     for k in range(-12, 13):
-        # Diagonal lines x + y = const clipped to the shadow circle
         c = sx + sy + k * 11
-        # Intersect x + y = c with (x - sx)^2 + (y - sy)^2 <= r^2
-        # Midpoint is ((c + sx - sy)/2, (c - sx + sy)/2), distance from center is |k*11| / sqrt(2)
         d_center = abs(k * 11) / 1.4142
-        r_avg = 79.0
-        if d_center < r_avg - 3:
-            half_chord = math.sqrt(r_avg * r_avg - d_center * d_center) / 1.4142
+        if d_center < r - 3:
+            half_chord = math.sqrt(r * r - d_center * d_center) / 1.4142
             mx = (c + sx - sy) / 2
             my = (c - sx + sy) / 2
             hatches.append(wobble([(mx - half_chord, my + half_chord), (mx + half_chord, my - half_chord)], seed + 30 + k, amp=0.5, step=8))
     hatch_svg = "".join(f'<path class="badge-hatch" d="{h}"/>' for h in hatches)
-    # Character face (positioned inside the circle so the bun has generous orange room above it)
-    head_pts = [(100 + 56 * math.cos(a / 28 * 6.38 - 0.2), 112 + 60 * math.sin(a / 28 * 6.38 - 0.2)) for a in range(29)]
-    bun_pts = [(100 + 24 * math.cos(a / 18 * 6.38), 46 + 20 * math.sin(a / 18 * 6.38)) for a in range(19)]
-    hair_top = wobble([(45, 105), (50, 82), (66, 62), (84, 53), (100, 51), (116, 53), (134, 62), (150, 82), (155, 105)], seed + 6, amp=0.8, step=6)
-    hair_bot = wobble([(155, 105), (138, 90), (118, 80), (100, 83), (82, 80), (62, 90), (45, 105)], seed + 7, amp=0.8, step=6)
-    hair_d = hair_top + " L" + hair_bot[1:] + " Z"
-    smile = wobble([(77, 134), (89, 145), (100, 148), (111, 145), (123, 134)], seed + 4, amp=0.8, step=5)
-    eye_l = wobble([(80 + 6.5 * math.cos(a / 10 * 6.3), 113 + 6.8 * math.sin(a / 10 * 6.3)) for a in range(11)], seed + 8, amp=0.4, step=3)
-    eye_r = wobble([(120 + 6.5 * math.cos(a / 10 * 6.3), 113 + 6.8 * math.sin(a / 10 * 6.3)) for a in range(11)], seed + 9, amp=0.4, step=3)
+    clip_id = f"avatar-clip-{seed}"
     return (
         '<svg class="logo-badge" viewBox="0 0 204 204" aria-hidden="true">'
-        f'<path class="badge-shadow-bg" d="{wobble(shadow_pts, seed + 1, amp=1.2, step=10)} Z"/>'
+        f'<defs><clipPath id="{clip_id}"><circle cx="{cx}" cy="{cy}" r="{r}"/></clipPath></defs>'
+        f'<path class="badge-shadow-bg" d="{wobble(shadow_pts, seed + 1, amp=1.0, step=10)} Z"/>'
         f'{hatch_svg}'
-        f'<path class="badge-shadow-ring" d="{wobble(shadow_pts, seed + 1, amp=1.2, step=10)}"/>'
-        f'<path class="badge-bg" d="{wobble(ring_pts, seed, amp=1.3, step=10)} Z"/>'
-        '<g transform="translate(102 110) scale(0.90) translate(-100 -106)">'
-        f'<path class="face-bun" d="{wobble(bun_pts, seed + 2, amp=0.8, step=6)} Z"/>'
-        f'<path class="face-skin" d="{wobble(head_pts, seed + 3, amp=1.1, step=8)} Z"/>'
-        f'<path class="face-hair" d="{hair_d}"/>'
-        f'<path class="face-line" d="{wobble(head_pts, seed + 3, amp=1.1, step=8)}"/>'
-        f'<path class="face-eye" d="{eye_l} Z"/>'
-        f'<path class="face-eye" d="{eye_r} Z"/>'
-        f'<path class="face-smile" d="{smile}"/>'
-        '</g>'
-        f'<path class="badge-ring" d="{wobble(ring_pts, seed, amp=1.3, step=10)}"/>'
-        f'<path class="badge-ring-2" d="{wobble(ring2_pts, seed + 5, amp=1.5, step=14)}"/>'
+        f'<path class="badge-shadow-ring" d="{wobble(shadow_pts, seed + 1, amp=1.0, step=10)}"/>'
+        f'<image href="{B}/static/apple-touch-icon.png" x="{cx - r}" y="{cy - r}" width="{r * 2}" height="{r * 2}" clip-path="url(#{clip_id})"/>'
+        f'<path class="badge-ring" d="{wobble(ring_pts, seed, amp=1.0, step=10)}"/>'
+        f'<path class="badge-ring-2" d="{wobble(ring2_pts, seed + 5, amp=1.2, step=14)}"/>'
         '</svg>'
     )
 
