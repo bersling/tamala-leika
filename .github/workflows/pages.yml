@@ -1,0 +1,37 @@
+# Builds and deploys https://bersling.github.io/tamala-leika. This file is copied to .github/workflows/ of the
+# public repo by `python3 site/build.py deploy` in the (private) tamalaleika repo; edit it there.
+# The schedule runs just after the 05:00 and 17:00 Zurich slots (UTC, winter and summer time),
+# so a scheduled short gets its page without a deploy.
+name: Pages
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "7 3,4,15,16 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 build.py build --out _site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
