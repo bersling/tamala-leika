@@ -7,6 +7,7 @@ Python standard library only, so it runs on the host and in GitHub Actions witho
     python3 site/build.py build [--all] [--base ""] [--now ISO]   # -> site/_site/ (links under /tamala-leika)
     python3 site/build.py serve           # export, build --all, serve on http://localhost:8738
     python3 site/build.py deploy          # export, build, push the site to the public repo
+    python3 site/build.py poster <id> <s> # poster from out/<id>.mp4 at second <s>
 
 A video gets its page once its YouTube release time has passed (`--all` shows every video,
 unreleased ones marked). The public repo rebuilds on a schedule just after the 05:00 and 17:00
@@ -620,7 +621,12 @@ def git(*args, cwd: Path, check=True):
     return subprocess.run(["git", *args], cwd=cwd, check=check, text=True, capture_output=True)
 
 
-def deploy() -> None:
+def deploy(force: bool = False) -> None:
+    top = Path(subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=SITE, capture_output=True,
+                              text=True, check=True).stdout.strip())
+    if top != main_checkout() and not force:
+        # A worktree's BACKLOG.md lacks the rows other sessions added on main since it branched.
+        sys.exit("deploy from the main checkout (after merging), not from a worktree; --force overrides")
     export()
     build(SITE / "_site")
     repo = main_checkout() / "build" / "site-repo"
@@ -651,6 +657,15 @@ def deploy() -> None:
     print(f"pushed to {PUBLIC_REPO}; GitHub Actions deploys it to {SITE_URL} in a minute or two")
 
 
+def make_poster(vid: str, seconds: float) -> None:
+    """site/static/posters/<id>.jpg: the drawing (top 1440 px) of the render at `seconds`."""
+    src = main_checkout() / "out" / f"{vid}.mp4"
+    dst = SITE / "static" / "posters" / f"{vid}.jpg"
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", str(seconds), "-i", str(src), "-frames:v", "1",
+                    "-vf", "crop=1080:1440:0:0,scale=720:960", "-q:v", "3", str(dst)], check=True)
+    print(f"wrote {dst.relative_to(SITE.parent)} ({dst.stat().st_size // 1024} KB)")
+
+
 def serve(port: int = 8738) -> None:
     import functools
     import http.server
@@ -679,7 +694,9 @@ if __name__ == "__main__":
         build(out, show_all="--all" in args, now=now)
     elif cmd == "serve":
         serve()
+    elif cmd == "poster":
+        make_poster(args[1], float(args[2]))
     elif cmd == "deploy":
-        deploy()
+        deploy(force="--force" in args)
     else:
         sys.exit(__doc__)
