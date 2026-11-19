@@ -1,7 +1,7 @@
 # Tamala Leika website
 
-The website of [Tamala Leika](https://www.youtube.com/@tamalaleika), hand-drawn finance explainers:
-one page per short, with the video and an article.
+The website of [Tamala Leika](https://www.youtube.com/@tamalaleika), short finance explainers:
+one page per short, with the video and a written article.
 
 This repo is generated. The source lives in a private repo and is pushed here by
 `python3 site/build.py deploy`; changes made here are overwritten. GitHub Actions builds the pages

@@ -1,26 +1,24 @@
 ---
 title: About
-summary: Who makes Tamala Leika, why it's made with AI, and what this site does with your data (not much).
+summary: What Tamala Leika is, how it's made with AI, and how this site handles privacy.
 ---
-Hi, I'm Daniel, and Tamala Leika is my thing.
+Hi, I'm Daniel.
 
-And yes, it's AI generated. The scripts, the voice and the drawings come out of a machine that I point at topics and keep pushing until the result clears my bar. Claude does most of the work, and I decide what goes out and what goes back for another round.
+Let's get the obvious part out of the way first: yes, these videos are made with AI. Typically I don't like AI-generated videos either, because left to itself, AI just churns out generic slop that nobody wants to watch.
 
-It's free. If you want to watch it, watch it. If you don't, you can also just not watch it, that's totally fine.
+Still, when I searched YouTube for a simple explanation of implied volatility, most of what I found was so bad that I figured an AI short — properly guided and edited — could actually do a better job. So I built a pipeline where AI drafts the script, speaks the narration and generates the whiteboard drawings in code, while I pick the topics, check that the story and the numbers make sense, and throw drafts back until they clear my bar.
 
-## Why it exists
+I'm not a finance professional. These are just the concepts and market stories I've found fascinating and learned about along the way, explained as simply and clearly as I can get the machine to explain them. None of this is financial advice.
 
-These are topics that interest me: options, crashes, bubbles, and the people who made a fortune or lost one. I'm not a finance guy myself, so these are the things I learned along the way, and when I search for one of them I'd still rather watch a hand-drawn short that gets the idea across than most of what else is out there.
+If you find it useful or entertaining, enjoy. And if it's not your cup of tea, that's completely fine too.
 
-## About the quality
+## Why a website too?
 
-AI is basically a content machine. Left alone it churns out stuff nobody wants to watch, but with some guidance I think it can reach acceptable quality, and I have my own bar for that. Every script goes past me before it gets made, the facts get checked, and plenty of drafts end up in the bin. It won't be perfect, but it's not too bad.
-
-None of this is financial advice. It's how things work, explained as simply as I can get the machine to explain them.
+Sometimes you just want to read an explanation in two minutes without turning your sound on, or look up the numbers from a video without scrubbing through a timeline. Every short published on the channel gets its own page here with the video and a written version right next to it.
 
 ## Privacy
 
-This site sets no cookies, so there's no cookie banner either. It counts page views with [GoatCounter](https://www.goatcounter.com), which works without cookies and doesn't store IP addresses. The videos come from YouTube, but the YouTube player only loads once you press play.
+This site doesn't use cookies, which is why you won't see a cookie banner. Page views are counted with [GoatCounter](https://www.goatcounter.com), a lightweight analytics tool that doesn't track you across sites or store IP addresses. The embedded videos are hosted on YouTube, using their privacy-enhanced player, and nothing loads from YouTube until you actually click play.
 
 ## Elsewhere
 

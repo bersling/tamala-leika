@@ -39,7 +39,7 @@ YOUTUBE = "https://www.youtube.com/@tamalaleika"
 TIKTOK = "https://www.tiktok.com/@tamalaleika"
 GOATCOUNTER = "https://tamalaleika.goatcounter.com/count"
 NAME = "Tamala Leika"
-TAGLINE = "Money, markets and their stories, one hand-drawn idea at a time."
+TAGLINE = "Money, markets and their stories."
 
 
 # ---------------------------------------------------------------- export (main repo only)
@@ -280,7 +280,7 @@ def hero_svg() -> str:
     arrow = wobble([(470, 120), (430, 102), (ell_c[0] + 66, ell_c[1] - 10)], 6, amp=1.4)
     head_x, head_y = ell_c[0] + 66, ell_c[1] - 10
     head = wobble([(head_x + 14, head_y - 8), (head_x, head_y), (head_x + 15, head_y + 7)], 8, amp=0.6, step=4)
-    return f'''<svg class="hero-chart" viewBox="0 0 680 470" role="img" aria-label="A hand-drawn chart: a price shoots up and crashes, with a circled peak and the question why">
+    return f'''<svg class="hero-chart" viewBox="0 0 680 470" role="img" aria-label="Chart of a price shooting up and crashing, with the peak circled and the question: wait, why did it crash?">
   <path class="ink axis" pathLength="1" d="{ax}"/>
   {ticks}
   <text class="hand axis-label" x="16" y="60">price</text>
@@ -356,7 +356,7 @@ def footer() -> str:
   <div class="wrap footer-row">
     <div>
       <p class="logo small">{NAME}</p>
-      <p class="fine">Hand-drawn finance explainers. Made with AI, checked by a human. Educational, not financial advice.</p>
+      <p class="fine">Short finance explainers, made with AI. For education only — none of this is financial advice.</p>
     </div>
     <nav class="footer-nav">
       <a href="{B}/videos/">All videos</a><a href="{B}/about/">About</a>
@@ -420,10 +420,10 @@ def home(videos, now, show_all) -> str:
     cta = (f'<a class="btn primary" href="{B}/{first["slug"]}/">Watch the latest</a>' if first else "")
     body = f'''<section class="hero wrap">
   <div class="hero-text">
-    <p class="kicker hand">hand-drawn finance explainers</p>
+    <p class="kicker hand">short finance explainers</p>
     <h1 class="display">{NAME}</h1>
     <p class="hero-sub">{TAGLINE}</p>
-    <p class="hero-lead">Short videos with a pen and a white page: what an option really is, why a bank can vanish in a single weekend, how a bubble fills up and pops. Every one comes with an article you can read at your own pace.</p>
+    <p class="hero-lead">Short videos on how financial markets work — from basic concepts like options, bonds and leverage to the stories behind big crashes, bubbles and bets. Every video comes with a written version right below it if you'd rather read than watch.</p>
     <div class="actions">{cta}<a class="btn" href="{B}/videos/">All videos</a></div>
   </div>
   <div class="hero-art">{hero_svg()}</div>
@@ -448,11 +448,11 @@ def home(videos, now, show_all) -> str:
 <section class="wrap section about-strip">
   <div class="about-box">
     <h2 class="sketch">Who makes this?</h2>
-    <p>One person and a lot of AI. The scripts, voices and drawings are machine-made, the topics and the quality bar are mine, and it's all free. Watch it if you like it, skip it if you don't.</p>
+    <p>I'm not a finance guy — these are just the things I learned along the way, turned into short videos with the help of AI. The machine writes, speaks and draws them, and I keep throwing drafts back until they actually make sense.</p>
     <a class="btn" href="{B}/about/">About the channel</a>
   </div>
 </section>'''
-    return layout(title=NAME, description=f"{TAGLINE} Short hand-drawn videos on options, markets, crashes and bubbles, each with an article.",
+    return layout(title=NAME, description=f"{TAGLINE} Short videos and articles on options, markets, crashes and bubbles.",
                   path="/", body=body, page_class="home")
 
 
@@ -508,11 +508,11 @@ def video_page(v, videos, now) -> str:
 def index_page(videos, now, show_all) -> str:
     vis = [v for v in videos if show_all or released(v, now)]
     groups = [
-        ("Concepts: the basics", "Start here. No jargon assumed.",
+        ("Concepts: the basics", "The building blocks, explained from scratch.",
          [v for v in vis if v["kind"] != "story" and v["level"] in ("basic", "")]),
-        ("Concepts: one step further", "For when the basics are in place.",
+        ("Concepts: one step further", "Going a bit deeper once the basics are clear.",
          [v for v in vis if v["kind"] != "story" and v["level"] in ("advanced", "pro")]),
-        ("Stories", "Bets, bubbles, frauds and collapses, and who paid for them.",
+        ("Stories", "Big bets, bubbles, frauds and collapses.",
          [v for v in vis if v["kind"] == "story"]),
     ]
     sections = ""
@@ -535,11 +535,11 @@ def index_page(videos, now, show_all) -> str:
     body = f'''<div class="wrap">
   <header class="page-head">
     <h1 class="display page-title">All videos</h1>
-    <p class="lede">{n} short{"s" if n != 1 else ""} so far, each with an article. Concepts first, then the stories.</p>
+    <p class="lede">{n} short{"s" if n != 1 else ""} so far, each with a written version to read.</p>
   </header>
   {sections}
 </div>'''
-    return layout(title="All videos", description="Every Tamala Leika short with its article: options, short selling, leverage, crashes, bubbles and the people behind them.",
+    return layout(title="All videos", description="Every Tamala Leika short with its written article: options, short selling, leverage, crashes, bubbles and the people behind them.",
                   path="/videos/", body=body, page_class="index")
 
 
@@ -560,7 +560,7 @@ def not_found() -> str:
     body = f'''<div class="wrap text-page center">
   <svg class="lost" viewBox="0 0 320 180" aria-hidden="true"><path class="data orange" d="{line}"/></svg>
   <h1 class="display page-title">Page not found</h1>
-  <p class="lede">This page went to zero. The videos are all still there, though.</p>
+  <p class="lede">There's nothing at this address, but all the videos are still there.</p>
   <p><a class="btn primary" href="{B}/videos/">All videos</a></p>
 </div>'''
     return layout(title="Page not found", description="This page does not exist.", path="/404.html", body=body, page_class="text")
